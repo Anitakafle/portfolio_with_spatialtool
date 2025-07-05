@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anita Kafle | Welcome to my Portfolio</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f9f9f9; color: #333; line-height: 1.6; }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #3498db; border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2980b9; }
+
+    header {
+      background: linear-gradient(135deg, #3498db, #2c3e50);
+      color: white;
+      padding: 2.5rem 0 2rem 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+    .header-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0.1;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.2) 0%, transparent 8%),
+        radial-gradient(circle at 50% 60%, rgba(255,255,255,0.2) 0%, transparent 10%),
+        radial-gradient(circle at 80% 40%, rgba(255,255,255,0.2) 0%, transparent 15%);
+    }
+    /* New glowing background behind profile image */
+    .profile-pic {
+      width: 180px; height: 180px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      border-radius: 50%;
+      overflow: visible;
+      z-index: 3;
+    }
+    .profile-pic::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(52,152,219,0.6) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(20px);
+      z-index: -1;
+    }
+    .profile-pic img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 5px solid rgba(255,255,255,0.3);
+      box-shadow: 0 4px 18px rgba(52,152,219,0.18);
+      position: relative;
+      z-index: 2;
+      background-color: #e0e0e0;
+    }
+    h1 { font-size: 3rem; margin-bottom: 0.5rem; font-weight: 700; position: relative; z-index: 3; }
+    .tagline { font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 300; opacity: 0.9; position: relative; z-index: 3; }
+    .contact-info {
+      display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 3;
+    }
+    .contact-info a {
+      color: white; text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem; background-color: rgba(255,255,255,0.1); border-radius: 30px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    .contact-info a:hover { background-color: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+    nav {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: center; }
+    .nav-links { display: flex; list-style: none; }
+    .nav-links li a {
+      display: block; padding: 1.2rem 1.5rem; color: #333; text-decoration: none; font-weight: 500;
+      position: relative; transition: all 0.3s ease;
+    }
+    .nav-links li a::after {
+      content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 3px;
+      background-color: #3498db; transition: all 0.3s ease; transform: translateX(-50%);
+    }
+    .nav-links li a:hover { color: #3498db; }
+    .nav-links li a:hover::after { width: 70%; }
+
+    main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+    section { margin-bottom: 4rem; }
+    .section-title {
+      display: flex; align-items: center; margin-bottom: 2rem; position: relative;
+    }
+    .section-title h2 {
+      font-size: 2rem; font-weight: 600; padding-right: 1rem; color: #2c3e50;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 2px; background: linear-gradient(to right, #3498db, transparent);
+    }
+
+    /* Timeline Styles */
+    .timeline { position: relative; max-width: 1000px; margin: 0 auto 3rem auto; }
+    .timeline::after {
+      content: ''; position: absolute; width: 3px; background-color: #e0e0e0; top: 0; bottom: 0;
+      left: 50%; margin-left: -1.5px;
+    }
+    .timeline-item {
+      padding: 10px 40px; position: relative; width: 50%; opacity: 0; transform: translateY(30px);
+      transition: all 0.5s ease;
+    }
+    .timeline-item.appear { opacity: 1; transform: translateY(0); }
+    .timeline-item:nth-child(odd) { left: 0; }
+    .timeline-item:nth-child(even) { left: 50%; }
+    .timeline-item::after {
+      content: ''; position: absolute; width: 20px; height: 20px; background-color: white;
+      border: 4px solid #3498db; border-radius: 50%; top: 20px; z-index: 1;
+    }
+    .timeline-item:nth-child(odd)::after { right: -13px; }
+    .timeline-item:nth-child(even)::after { left: -13px; }
+    .timeline-content {
+      padding: 20px; background-color: white; border-radius: 6px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; transition: all 0.3s ease;
+    }
+    .timeline-content:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .timeline-item:nth-child(odd) .timeline-content { border-right: 3px solid #3498db; }
+    .timeline-item:nth-child(even) .timeline-content { border-left: 3px solid #3498db; }
+    .timeline-date { font-size: 0.9rem; color: #3498db; font-weight: 600; margin-bottom: 0.5rem; }
+    .timeline-title { margin-bottom: 0.5rem; font-size: 1.3rem; color: #2c3e50; }
+    .timeline-location { font-style: italic; color: #777; margin-bottom: 1rem; }
+
+    /* Card Grid Styles */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+    .card {
+      background-color: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 2rem; transition: all 0.3s ease; position: relative; overflow: hidden;
+      border-top: 3px solid #3498db;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .card h3 { font-size: 1.2rem; color: #3498db; margin-bottom: 0.5rem; }
+    .card p { color: #555; }
+    .card ul { margin-top: 1rem; }
+    .card li { margin-bottom: 0.5rem; }
+
+    /* Map Styles */
+    #map {
+      height: 400px;
+      width: 100%;
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+      border: 2px solid #3498db;
+      box-shadow: 0 6px 15px rgba(52,152,219,0.12);
+    }
+    .info-box {
+      background: #eaf1ff;
+      padding: 1.1rem 1.3rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 1.07em;
+      color: #1b2a4b;
+      box-shadow: 0 2px 8px rgba(58,134,255,0.08);
+    }
+    .tools-list {
+      margin-top: 1.2rem;
+      margin-bottom: 1.2rem;
+      color: #1b2a4b;
+    }
+    .tools-list li { margin-bottom: 0.5rem; font-weight: 500; }
+    button {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      margin-right: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(52,152,219,0.13);
+      transition: background-color 0.3s;
+      margin-bottom: 1.2rem;
+    }
+    button:hover { background: #2980b9; }
+
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    .footer-content { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+    .copyright { margin-top: 1rem; opacity: 0.7; font-size: 0.9rem; }
+
+    @media (max-width: 900px) {
+      main { padding: 0 0.7rem; }
+      .profile-pic { width: 120px; height: 120px; }
+    }
+    @media (max-width: 768px) {
+      .timeline::after { left: 31px; }
+      .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
+      .timeline-item:nth-child(even) { left: 0; }
+      .timeline-item::after { left: 18px; }
+      .timeline-item:nth-child(odd)::after { right: auto; }
+      .timeline-item:nth-child(even) .timeline-content {
+        border-left: none; border-right: 3px solid #3498db;
+      }
+      h1 { font-size: 2.5rem; }
+      .tagline { font-size: 1.1rem; }
+    }
+    @media (max-width: 576px) {
+      .nav-links li a { padding: 1rem 0.8rem; font-size: 0.9rem; }
+      h1 { font-size: 2rem; }
+      .tagline { font-size: 1rem; }
+      .timeline-content { padding: 15px; }
+      .timeline-title { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <div class="header-bg"></div>
+    <div class="header-content">
+      <div class="profile-pic">
+        <img src="Anita.jpg" alt="Anita Kafle">
+      </div>
+      <h1>Anita Kafle</h1>
+      <p class="tagline">Geomatics Engineering Student | Enthusiast of Mapping, Design, and Technology</p>
+      <div class="contact-info">
+        <a href="mailto:anitakafle799@gmail.com">anitakafle799@gmail.com</a>
+        <a href="#">linkedin.com/in/anitakafle</a>
+        <a href="#">github.com/anitakafle</a>
+      </div>
+    </div>
+  </header>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#spatialtools">Spatial Tools</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+  <!-- Main Content -->
+  <main>
+    <!-- About Section -->
+    <section id="about">
+      <div class="section-title"><h2>About Me</h2></div>
+      <div class="card">
+        <p>I’m Anita Kafle (also known as Sumina Kafle on social media) from Dhulikhel-4, Kavre. A passionate and dedicated final-year undergraduate student of Geomatics Engineering at Kathmandu University. My journey in engineering has been enriched by diverse interests ranging from spatial data analysis to design tools and creative technologies.</p>
+        <p>I strive to merge technical precision with visual storytelling. My goal is to use my knowledge in GIS, mapping, and design tools to make real-world impacts—especially in environmental studies, urban planning, and disaster management.</p>
+      </div>
+    </section>
+    <!-- Education Section -->
+    <section id="education">
+      <div class="section-title"><h2>Education</h2></div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <div class="timeline-date">2019 – 2025</div>
+            <h3 class="timeline-title">Bachelor of Engineering in Geomatics Engineering</h3>
+            <div class="timeline-location">Kathmandu University</div>
+            <p><strong>Key Courses:</strong> Remote Sensing, GIS, Photogrammetry, Surveying, Web GIS</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <div class="timeline-date">2017 – 2019</div>
+            <h3 class="timeline-title">+2 in Science Stream</h3>
+            <div class="timeline-location">Sanjiwani Model Secondary School</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <div class="timeline-date">Until 2017</div>
+            <h3 class="timeline-title">School Leaving Certificate (SLC)</h3>
+            <div class="timeline-location">Mount View Secondary School</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Skills Section -->
+    <section id="skills">
+      <div class="section-title"><h2>Skills & Certifications</h2></div>
+      <div class="card">
+        <ul class="skills-list">
+          <li>ArcGIS: Map creation, analysis, spatial tools</li>
+          <li>AutoCAD: 2D/3D drawing, design planning</li>
+          <li>Figma: UI/UX wireframing and prototyping</li>
+          <li>HTML, CSS, JavaScript: Web design fundamentals</li>
+          <li>QGIS, Google Earth Engine (Basic)</li>
+          <li>Team Collaboration and Report Writing</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Projects Section -->
+    <section id="projects">
+      <div class="section-title"><h2>Projects & Achievements</h2></div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3 class="timeline-title">Land Use and Land Cover Mapping Using Satellite Images</h3>
+            <div class="timeline-location">Kavrepalanchok District</div>
+            <p>Analyzed satellite images to determine land use patterns using supervised classification in ArcGIS.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3 class="timeline-title">Topographic Map Preparation</h3>
+            <div class="timeline-location">Group Project</div>
+            <p>Led a group in preparing detailed topographic maps using total station and GNSS survey data.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3 class="timeline-title">Figma Design Challenge</h3>
+            <div class="timeline-location">UI/UX Workshop Project</div>
+            <p>Created a complete prototype for a travel blog platform using Figma.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3 class="timeline-title">Volunteer - GIS Day Event</h3>
+            <div class="timeline-location">Kathmandu University</div>
+            <p>Organized spatial games and assisted in workshops for beginners in GIS tools.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Hobbies Section -->
+    <section id="hobbies">
+      <div class="section-title"><h2>Hobbies & Interests</h2></div>
+      <div class="card">
+        <ul class="hobby-list">
+          <li>Reading fiction and non-fiction novels</li>
+          <li>Traveling and exploring new cultures and geography</li>
+          <li>Designing interfaces and exploring new tech tools</li>
+          <li>Photography and journaling</li>
+        </ul>
+      </div>
+    </section>
+    <!-- Spatial Tools Section -->
+    <section id="spatialtools">
+      <div class="section-title"><h2>Spatial Tools with Turf.js</h2></div>
+      <div id="map"></div>
+      <div class="info-box" id="infoBox">
+        <strong>Instructions:</strong>
+        <ul>
+          <li>Click the "Buffer" button to create a buffer around the red point.</li>
+          <li>Click anywhere on the map to find the nearest blue point and measure the distance.</li>
+          <li>Click the "Calculate Area" button to see the area of the green polygon.</li>
+        </ul>
+      </div>
+      <h3 style="color:#3498db; margin-top:1.3rem;">Spatial Tools Demonstrated:</h3>
+      <ul class="tools-list">
+        <li><strong>Buffer:</strong> Creates a buffer zone around a selected point using <code>turf.buffer()</code>.</li>
+        <li><strong>Nearest Point:</strong> Finds the nearest point to a clicked location using <code>turf.nearestPoint()</code>.</li>
+        <li><strong>Area Calculation:</strong> Calculates the area of a polygon using <code>turf.area()</code>.</li>
+      </ul>
+      <button onclick="createBuffer()">Buffer</button>
+      <button onclick="calculateArea()">Calculate Area</button>
+    </section>
+    <!-- Contact Section -->
+    <section id="contact">
+      <div class="section-title"><h2>Contact</h2></div>
+      <div class="card contact">
+        <p><strong>Phone:</strong> 9840026029</p>
+        <p><strong>Email:</strong> <a href="mailto:anitakafle799@gmail.com">anitakafle799@gmail.com</a></p>
+        <p><strong>LinkedIn:</strong> <a href="#">linkedin.com/in/anitakafle</a></p>
+        <p><strong>GitHub:</strong> <a href="#">github.com/anitakafle</a></p>
+        <p><strong>Facebook:</strong> <a href="#">Sumina Kafle</a></p>
+        <p><strong>Instagram:</strong> <a href="#">@suminakaflee</a></p>
+        <p><strong>TikTok:</strong> <a href="#">@summenakafle200</a></p>
+        <p><strong>Snapchat:</strong> <a href="#">summena_kafle</a></p>
+      </div>
+    </section>
+  </main>
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <h3>Get In Touch</h3>
+      <p>Feel free to reach out for collaborations or inquiries</p>
+      <p><strong>Email:</strong> anitakafle799@gmail.com</p>
+      <p class="copyright">© 2025 Anita Kafle. All rights reserved.</p>
+    </div>
+  </footer>
+  <!-- Turf.js Map Script -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <script>
+    // Centered on Dhulikhel near Land Management Training Centre
+    var map = L.map('map').setView([27.6226, 85.5369], 14);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Main point near Land Management Training Centre, Dhulikhel
+    var mainPoint = turf.point([85.5369, 27.6226]);
+
+    // Other points around Dhulikhel (example)
+    var otherPoints = turf.featureCollection([
+      turf.point([85.5385, 27.6200]),
+      turf.point([85.5330, 27.6250]),
+      turf.point([85.5400, 27.6280])
+    ]);
+
+    // Add main point (red marker)
+    var mainMarker = L.marker([27.6226, 85.5369], {
+      icon: L.icon({
+        iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/images/marker-icon-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41]
+      })
+    }).addTo(map).bindPopup("Main Point (Red) - Land Management Training Centre");
+
+    // Add other points (blue markers) with updated popup names
+    var blueIcon = new L.Icon({
+      iconUrl: 'https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/images/marker-icon.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+    var locationNames = ["Nearest_Area", "Area_calculation", "Buffer"];
+    otherPoints.features.forEach(function(pt, i) {
+      L.marker([pt.geometry.coordinates[1], pt.geometry.coordinates[0]], {icon: blueIcon})
+        .addTo(map)
+        .bindPopup(locationNames[i]);
+    });
+
+    // Polygon around the area (approximate)
+    var polygon = turf.polygon([[
+      [85.5320, 27.6240],
+      [85.5380, 27.6270],
+      [85.5420, 27.6220],
+      [85.5370, 27.6180],
+      [85.5320, 27.6240]
+    ]]);
+    var polygonLayer = L.polygon(polygon.geometry.coordinates[0].map(function(coord) {
+      return [coord[1], coord[0]];
+    }), {color: 'green', fillOpacity: 0.4}).addTo(map);
+
+    // Buffer layer variable
+    var bufferLayer;
+
+    // Create buffer function
+    function createBuffer() {
+      if (bufferLayer) map.removeLayer(bufferLayer);
+      var buffered = turf.buffer(mainPoint, 0.5, {units: 'kilometers'});
+      bufferLayer = L.geoJSON(buffered, {style: {color: 'orange', fillOpacity: 0.2}}).addTo(map);
+      map.fitBounds(bufferLayer.getBounds());
+      document.getElementById('infoBox').innerHTML = "<strong>Buffer:</strong> Created a 0.5 km buffer around the main point.";
+    }
+
+    // Calculate area function
+    function calculateArea() {
+      var area = turf.area(polygon);
+      var areaHectares = (area / 10000).toFixed(2);
+      document.getElementById('infoBox').innerHTML = "<strong>Area Calculation:</strong> The green polygon area is <b>" + areaHectares + " hectares</b> (" + area.toFixed(2) + " m²).";
+    }
+
+    // Nearest point on map click
+    map.on('click', function(e) {
+      var clickedPoint = turf.point([e.latlng.lng, e.latlng.lat]);
+      var nearest = turf.nearestPoint(clickedPoint, otherPoints);
+      var distance = turf.distance(clickedPoint, nearest, {units: 'kilometers'});
+      var nearestLatLng = [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
+      L.circle(nearestLatLng, {radius: 30, color: 'blue', fillOpacity: 0.3}).addTo(map)
+        .bindPopup("Nearest Blue Point<br>Distance: " + distance.toFixed(3) + " km").openPopup();
+      document.getElementById('infoBox').innerHTML = "<strong>Nearest Point:</strong> Clicked location is <b>" + distance.toFixed(3) + " km</b> from the nearest blue point.";
+    });
+
+    // Timeline animation on scroll
+    window.addEventListener('DOMContentLoaded', function() {
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      timelineItems.forEach((item, i) => {
+        setTimeout(() => item.classList.add('appear'), 200 + i * 200);
+      });
+    });
+  </script>
+</body>
+</html>
